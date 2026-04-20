@@ -40,18 +40,30 @@ export const SUPPORTED_LANGUAGES: LanguageConfig[] = [
 const MAX_REGULAR_PROMPTS_TO_DISPLAY = 120;
 
 /**
- * Convert locale to URL language prefix
- * en -> en-US, zh -> zh-CN, others remain unchanged
+ * Convert locale to URL language prefix.
+ * youhome uses next-intl `as-needed`: default (en-US) has no prefix;
+ * all other locales carry their full code.
+ * en  -> '' (no prefix), zh -> 'zh-CN', others remain unchanged
  */
 function getLocalePrefix(locale: string): string {
   if (locale === 'en') {
-    return 'en-US';
+    return '';
   }
   if (locale === 'zh') {
     return 'zh-CN';
   }
   // Other language codes (e.g., zh-TW, ja-JP) remain unchanged
   return locale;
+}
+
+/**
+ * Build an absolute URL to the GPT Image 2 prompts gallery with the correct
+ * locale prefix. Pass a suffix like `?id=123` or `?categories=foo` via `suffix`.
+ */
+function buildPromptsUrl(locale: string, suffix = ''): string {
+  const prefix = getLocalePrefix(locale);
+  const prefixSegment = prefix ? `/${prefix}` : '';
+  return `https://youmind.com${prefixSegment}/gpt-image-2-prompts${suffix}`;
 }
 
 /**
@@ -111,8 +123,12 @@ export function generateMarkdown(data: SortedPrompts, total: number, locale: str
 }
 
 function generateHeader(locale: string): string {
-  const arenaUrl = `https://youmind.com/${getLocalePrefix(locale)}/gpt-image-2-prompts`;
+  const galleryUrl = buildPromptsUrl(locale);
   return `
+<a href="${galleryUrl}">
+  <img src="https://marketing-assets.youmind.com/campaigns/gpt-image-2/og.png" alt="GPT Image 2 Prompts" width="100%" />
+</a>
+
 > 💡 ${t('seedancePromo', locale)}
 # 🚀 ${t('title', locale)}
 
@@ -172,7 +188,7 @@ function generateGalleryCTA(categories: FilterCategory[], locale: string): strin
 
 </div>
 
-**[${t('browseGallery', locale)}](https://youmind.com/${getLocalePrefix(locale)}/gpt-image-2-prompts)**
+**[${t('browseGallery', locale)}](${buildPromptsUrl(locale)})**
 
 ${t('galleryFeatures', locale)}
 
@@ -212,7 +228,7 @@ function generateCategoriesSection(categories: FilterCategory[], locale: string)
     const children = categories.filter(c => c.parentId === parent.id);
     for (const child of children) {
       // Child category - with link
-      const categoryUrl = `https://youmind.com/${getLocalePrefix(locale)}/gpt-image-2-prompts?categories=${child.slug}`;
+      const categoryUrl = buildPromptsUrl(locale, `?categories=${child.slug}`);
       md += `  - [${child.title}](${categoryUrl})\n`;
     }
   }
@@ -268,7 +284,7 @@ function generatePromptSection(prompt: Prompt, index: number, locale: string): s
   md += `- **${t('published', locale)}:** ${publishedDate}\n`;
   md += `- **${t('languages', locale)}:** ${prompt.language}\n\n`;
 
-  md += `**[${t('tryItNow', locale)}](https://youmind.com/${getLocalePrefix(locale)}/gpt-image-2-prompts?id=${prompt.id})**\n\n`;
+  md += `**[${t('tryItNow', locale)}](${buildPromptsUrl(locale, `?id=${prompt.id}`)})**\n\n`;
 
   md += `---\n\n`;
 
@@ -304,7 +320,7 @@ function generateAllPromptsSection(regular: Prompt[], hiddenCount: number, local
     md += `<div align="center">\n\n`;
     md += `### 🎯 ${hiddenCount} ${t('morePromptsDesc', locale)}\n\n`;
     md += `Due to GitHub's content length limitations, we can only display the first ${MAX_REGULAR_PROMPTS_TO_DISPLAY} regular prompts in this README.\n\n`;
-    md += `**[${t('viewAll', locale)}](https://youmind.com/${getLocalePrefix(locale)}/gpt-image-2-prompts)**\n\n`;
+    md += `**[${t('viewAll', locale)}](${buildPromptsUrl(locale)})**\n\n`;
     md += `The gallery features:\n\n`;
     md += `${t('galleryFeature1', locale)}\n\n`;
     md += `${t('galleryFeature2', locale)}\n\n`;
@@ -440,7 +456,7 @@ ${t('licensedUnder', locale)}
 
 <div align="center">
 
-**[🌐 ${t('viewInGallery', locale)}](https://youmind.com/${getLocalePrefix(locale)}/gpt-image-2-prompts)** •
+**[🌐 ${t('viewInGallery', locale)}](${buildPromptsUrl(locale)})** •
 **[📝 ${t('submitPrompt', locale)}](https://github.com/YouMind-OpenLab/awesome-gpt-image-2/issues/new?template=submit-prompt.yml)** •
 **[⭐ ${t('starRepo', locale)}](https://github.com/YouMind-OpenLab/awesome-gpt-image-2)**
 
