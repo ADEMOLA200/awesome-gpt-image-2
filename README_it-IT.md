@@ -26,7 +26,7 @@
 
 <div align="center">
 
-![Cover](public/images/gpt-image-2-prompts-cover-en.png)
+[![Cover](public/images/gpt-image-2-prompts-cover-en.png)](https://youmind.com/it-IT/gpt-image-2-prompts)
 
 </div>
 
